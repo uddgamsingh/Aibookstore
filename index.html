@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daily Bookstore</title>
+  <meta name="description" content="Discover 100 new books every day with summaries, main points and examples.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#/">📚 Daily Bookstore</a>
+    <form id="search-form" role="search">
+      <input id="search" type="search" placeholder="Search title, author or topic" maxlength="100" aria-label="Search books">
+      <button type="submit">Search</button>
+    </form>
+  </header>
+
+  <main>
+    <section id="list-view">
+      <nav class="tabs" aria-label="View">
+        <button id="tab-new" class="tab active" type="button">New today</button>
+        <button id="tab-all" class="tab" type="button">All books</button>
+      </nav>
+      <div id="genres" class="chips" aria-label="Genres"></div>
+      <p id="status" class="status" role="status"></p>
+      <div id="grid" class="grid"></div>
+      <div class="more"><button id="more" type="button" hidden>Load more</button></div>
+    </section>
+
+    <section id="detail-view" hidden></section>
+  </main>
+
+  <footer>Summaries are generated automatically and may contain mistakes. Check the source before relying on them.</footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
