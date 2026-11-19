@@ -116,7 +116,9 @@
       state.loaded += data.items.length;
       els.more.hidden = state.loaded >= state.total;
       if (state.total === 0) {
-        setStatus(state.q ? 'No books match "' + state.q + '".' : 'No books yet. The first daily update has not run.');
+        if (state.q) setStatus('No books match "' + state.q + '".');
+        else if (state.genre) setStatus('No books in ' + state.genre + ' yet. New books are added every day.');
+        else setStatus('No books yet. The first daily update has not run.');
       } else if (state.mode === 'new' && !state.q && state.addedOn) {
         setStatus(state.total + ' new books added on ' + state.addedOn);
       } else {
@@ -184,6 +186,12 @@
       }
       if (b.examples && b.examples.length) {
         kids.push(el('h2', { text: 'Examples' }), listOf('ol', b.examples));
+      }
+      if (b.explanation) {
+        kids.push(el('h2', { text: 'Explained simply' }));
+        b.explanation.split(/\n+/).forEach(function (para) {
+          if (para.trim()) kids.push(el('p', { text: para.trim() }));
+        });
       }
       var link = safeUrl(b.info_link);
       if (link) {
