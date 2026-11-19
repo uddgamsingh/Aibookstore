@@ -4,34 +4,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Daily Bookstore</title>
-  <meta name="description" content="Discover 100 new books every day with summaries, main points and examples.">
+  <meta name="description" content="New books every day, each with a smart summary, key points and examples.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;700;800&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="progress" aria-hidden="true"></div>
+
   <header class="top">
-    <a class="brand" href="#/">📚 Daily Bookstore</a>
+    <a class="brand" href="#/">Daily Bookstore</a>
     <form id="search-form" role="search">
-      <input id="search" type="search" placeholder="Search title, author or topic" maxlength="100" aria-label="Search books">
+      <input id="search" type="search" placeholder="Search by title, author or topic" maxlength="100" aria-label="Search books">
       <button type="submit">Search</button>
     </form>
   </header>
 
   <main>
     <section id="list-view">
-      <nav class="tabs" aria-label="View">
+      <section id="feature" class="feature" hidden aria-label="Pick of the day"></section>
+      <div id="genres" class="chips" role="group" aria-label="Genres"></div>
+      <nav class="tabs" aria-label="Show">
         <button id="tab-new" class="tab active" type="button">New today</button>
         <button id="tab-all" class="tab" type="button">All books</button>
+        <button id="tab-saved" class="tab" type="button">Saved <span id="saved-count" class="count">0</span></button>
       </nav>
-      <div id="genres" class="chips" aria-label="Genres"></div>
-      <p id="status" class="status" role="status"></p>
+      <div id="status" class="status" role="status"></div>
       <div id="grid" class="grid"></div>
-      <div class="more"><button id="more" type="button" hidden>Load more</button></div>
+      <div class="more"><button id="more" class="btn" type="button" hidden>Show more books</button></div>
     </section>
 
     <section id="detail-view" hidden></section>
   </main>
 
-  <footer>Summaries are generated automatically and may contain mistakes. Check the source before relying on them.</footer>
+  <footer>Summaries are generated automatically and can contain mistakes. Check the source before relying on them.</footer>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
