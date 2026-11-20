@@ -209,7 +209,7 @@
     surprise.addEventListener('click', function () { surpriseMe(surprise); });
 
     f.appendChild(coverEl(b));
-    f.appendChild(el('div', null, [
+    f.appendChild(el('div', { cls: 'feature-body' }, [
       el('div', null, [
         el('span', { cls: 'pick-tag', text: 'Pick of the day' }),
         el('span', { cls: 'card-genre', text: b.genre })
