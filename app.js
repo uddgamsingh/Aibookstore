@@ -380,9 +380,135 @@
   }
 
   function readMinutes(b) {
-    var words = [b.overview, b.summary, (b.main_points || []).join(' '), (b.examples || []).join(' '), b.explanation, b.who_should_read]
-      .join(' ').split(/\s+/).filter(Boolean).length;
+    var parts = [b.overview, b.summary, (b.main_points || []).join(' '), (b.examples || []).join(' '), b.explanation, b.who_should_read];
+    var d = b.deep;
+    if (d) {
+      parts = [b.overview, d.big_idea, d.summary, d.easy_explanation, d.final_takeaway, b.who_should_read, (d.top_three || []).join(' ')];
+      (d.key_points || []).forEach(function (k) { parts.push(k.point, k.explanation); });
+      (d.examples || []).forEach(function (e) { parts.push(e.example, e.lesson); });
+      (d.tips || []).forEach(function (t) { parts.push(t.title, t.detail); });
+      (d.frameworks || []).forEach(function (f) { (f.steps || []).forEach(function (st) { parts.push(st.name, st.detail); }); });
+      ((d.action_plan || {}).steps || []).forEach(function (st) { parts.push(st.focus, st.task); });
+    }
+    var words = parts.join(' ').split(/\s+/).filter(Boolean).length;
     return Math.max(1, Math.round(words / 200));
+  }
+
+  // The full study guide: big idea, frameworks, key points, examples, tips, plan, takeaways.
+  // jump collects { id, label } so long guides get a row of "go to" buttons.
+  function renderDeep(read, b, d, jump) {
+    function heading(text, id, label) {
+      var n = el('h2', { text: text });
+      if (id) { n.id = 'sec-' + id; jump.push({ id: id, label: label || text }); }
+      return n;
+    }
+
+    if (d.big_idea) read.appendChild(el('p', { cls: 'bigidea' }, [el('mark', { text: d.big_idea })]));
+    if (b.overview) {
+      read.appendChild(heading('About this book'));
+      addParagraphs(read, b.overview);
+    }
+    read.appendChild(heading('Summary', 'summary'));
+    addParagraphs(read, d.summary);
+    read.appendChild(heading('Easy explanation', 'easy'));
+    addParagraphs(read, d.easy_explanation);
+
+    (d.frameworks || []).forEach(function (f, i) {
+      read.appendChild(heading(f.title, 'framework' + i, f.title.length > 22 ? 'Framework' : f.title));
+      var ol = el('ol', { cls: 'steps' });
+      (f.steps || []).forEach(function (st) {
+        ol.appendChild(el('li', null, [
+          st.name ? el('strong', { text: st.name }) : null,
+          st.detail ? document.createTextNode((st.name ? ' ' : '') + st.detail) : null
+        ]));
+      });
+      read.appendChild(ol);
+    });
+
+    read.appendChild(heading('Key points', 'points'));
+    var kps = el('div', { cls: 'kps' });
+    (d.key_points || []).forEach(function (k, i) {
+      var hl = el('span', { cls: 'hl', text: k.point });
+      hl.style.setProperty('--i', String(Math.min(i, 8)));
+      kps.appendChild(el('div', { cls: 'kp' }, [
+        el('p', { cls: 'kp-point' }, [hl]),
+        k.explanation ? el('p', { cls: 'kp-why', text: k.explanation }) : null
+      ]));
+    });
+    read.appendChild(kps);
+
+    read.appendChild(heading('Examples', 'examples'));
+    (d.examples || []).forEach(function (e) {
+      var ex = el('div', { cls: 'ex' }, [el('p', { cls: 'ex-text', text: e.example })]);
+      if (e.lesson) {
+        ex.appendChild(el('p', { cls: 'ex-lesson' }, [el('strong', { text: 'What it shows: ' }), document.createTextNode(e.lesson)]));
+      }
+      read.appendChild(ex);
+    });
+
+    if (d.tips && d.tips.length) {
+      read.appendChild(heading('Tips you can use', 'tips', 'Tips'));
+      d.tips.forEach(function (t) {
+        read.appendChild(el('div', { cls: 'tip' }, [
+          t.title ? el('strong', { text: t.title }) : null,
+          t.detail ? el('p', { text: t.detail }) : null
+        ]));
+      });
+    }
+
+    var plan = d.action_plan;
+    if (plan && plan.steps && plan.steps.length) {
+      read.appendChild(heading(plan.title || 'Put it into practice', 'plan', 'Action plan'));
+      var table = el('table');
+      table.appendChild(el('thead', null, [el('tr', null, [
+        el('th', { text: 'When' }), el('th', { text: 'Focus' }), el('th', { text: 'What to do' })
+      ])]));
+      var body = el('tbody');
+      plan.steps.forEach(function (st) {
+        var cells = [['When', st.period], ['Focus', st.focus], ['What to do', st.task]].map(function (c) {
+          var td = el('td', { text: c[1] });
+          td.setAttribute('data-label', c[0]);
+          return td;
+        });
+        body.appendChild(el('tr', null, cells));
+      });
+      table.appendChild(body);
+      read.appendChild(el('div', { cls: 'tablewrap' }, [table]));
+    }
+
+    if (d.top_three && d.top_three.length) {
+      read.appendChild(heading('If you remember only three things', 'three', 'Top three'));
+      var ol3 = el('ol', { cls: 'steps top3' });
+      d.top_three.forEach(function (t, i) {
+        var hl = el('span', { cls: 'hl', text: t });
+        hl.style.setProperty('--i', String(i));
+        ol3.appendChild(el('li', null, [hl]));
+      });
+      read.appendChild(ol3);
+    }
+
+    if (d.final_takeaway) {
+      read.appendChild(heading('The takeaway'));
+      read.appendChild(el('p', { cls: 'takeaway', text: d.final_takeaway }));
+    }
+  }
+
+  function jumpRow(items) {
+    var row = el('div', { cls: 'jump' });
+    row.setAttribute('role', 'navigation');
+    row.setAttribute('aria-label', 'Sections of this guide');
+    items.forEach(function (it) {
+      var btn = el('button', { text: it.label });
+      btn.type = 'button';
+      btn.addEventListener('click', function () {
+        var target = document.getElementById('sec-' + it.id);
+        if (!target) return;
+        var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        target.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+      });
+      row.appendChild(btn);
+    });
+    return row;
   }
 
   function shareButton(b) {
@@ -446,36 +572,46 @@
       if (b.published_date) main.appendChild(el('p', { cls: 'by', text: 'Published ' + b.published_date }));
 
       var read = el('div', { cls: 'read' });
-      if (b.overview) {
-        read.appendChild(el('h2', { text: 'About this book' }));
-        addParagraphs(read, b.overview);
-      }
-      read.appendChild(el('h2', { text: 'The short version' }));
-      addParagraphs(read, b.summary);
-      if (b.main_points && b.main_points.length) {
-        read.appendChild(el('h2', { text: 'Key points' }));
-        var ul = el('ul');
-        b.main_points.forEach(function (t, i) {
-          var hl = el('span', { cls: 'hl', text: t });
-          hl.style.setProperty('--i', String(i));
-          ul.appendChild(el('li', null, [hl]));
-        });
-        read.appendChild(ul);
-      }
-      if (b.examples && b.examples.length) {
-        read.appendChild(el('h2', { text: 'Examples' }));
-        var ol = el('ol');
-        b.examples.forEach(function (t) { ol.appendChild(el('li', { text: t })); });
-        read.appendChild(ol);
-      }
-      if (b.explanation) {
-        read.appendChild(el('h2', { text: 'Explained simply' }));
-        addParagraphs(read, b.explanation);
+      var d = b.deep;
+      var jump = [];
+      if (d) {
+        renderDeep(read, b, d, jump);
+      } else {
+        if (b.overview) {
+          read.appendChild(el('h2', { text: 'About this book' }));
+          addParagraphs(read, b.overview);
+        }
+        read.appendChild(el('h2', { text: 'The short version' }));
+        addParagraphs(read, b.summary);
+        if (b.main_points && b.main_points.length) {
+          read.appendChild(el('h2', { text: 'Key points' }));
+          var ul = el('ul');
+          b.main_points.forEach(function (t, i) {
+            var hl = el('span', { cls: 'hl', text: t });
+            hl.style.setProperty('--i', String(i));
+            ul.appendChild(el('li', null, [hl]));
+          });
+          read.appendChild(ul);
+        }
+        if (b.examples && b.examples.length) {
+          read.appendChild(el('h2', { text: 'Examples' }));
+          b.examples.forEach(function (t) {
+            read.appendChild(el('div', { cls: 'ex' }, [el('p', { cls: 'ex-text', text: t })]));
+          });
+        }
+        if (b.explanation) {
+          read.appendChild(el('h2', { text: 'Explained simply' }));
+          addParagraphs(read, b.explanation);
+        }
       }
       if (b.who_should_read) {
-        read.appendChild(el('h2', { text: 'Who it’s for' }));
+        read.appendChild(el('h2', { text: 'Who it\u2019s for' }));
         addParagraphs(read, b.who_should_read);
       }
+      if (d && d.confidence === 'low') {
+        main.appendChild(el('p', { cls: 'fine', text: 'Based on the publisher\u2019s description, so this guide stays general.' }));
+      }
+      if (jump.length >= 4) main.appendChild(jumpRow(jump));
       main.appendChild(read);
 
       root.appendChild(el('a', { cls: 'back', href: '#/', text: 'Back to books' }));

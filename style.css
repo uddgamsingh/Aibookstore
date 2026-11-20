@@ -243,15 +243,17 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 32px) 4
 }
 .read p, .read li { font-family: var(--serif); font-weight: 400; font-size: 1.1rem; line-height: 1.75; }
 .read p { margin: 0 0 14px; }
-.read ul, .read ol { margin: 0; padding: 0; list-style: none; }
+.read ul { margin: 0; padding: 0; list-style: none; }
 .read li { margin: 0 0 12px; }
-.read ol { counter-reset: ex; }
-.read ol li { counter-increment: ex; padding-left: 34px; position: relative; }
-.read ol li::before {
-  content: counter(ex); position: absolute; left: 0; top: 0.3em; width: 24px; height: 24px;
-  display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--ink);
-  font: 700 0.8rem var(--display);
-}
+.ex { margin: 0 0 20px; padding-left: 16px; border-left: 4px solid var(--g); }
+.ex p { margin: 0 0 6px; }
+.ex-lesson { color: var(--muted); }
+.ex-lesson strong { font-family: var(--display); color: var(--ink); font-weight: 700; font-size: 1rem; }
+
+.kp { margin: 0 0 24px; }
+.kp p { margin: 0; }
+.kp-point { font-family: var(--display) !important; font-weight: 700 !important; font-size: 1.12rem !important; line-height: 1.5 !important; }
+.kp-why { margin-top: 6px !important; }
 
 /* the highlighter: key points get marked once when the page opens */
 .hl {
@@ -271,3 +273,49 @@ footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 2
   .hl, .save.pop { animation: none; }
   .card .cover, .btn, #progress { transition: none; }
 }
+
+/* ---------- full study guide sections ---------- */
+.bigidea { margin: 6px 0 26px; font: 800 clamp(1.3rem, 3.4vw, 1.8rem)/1.28 var(--display); letter-spacing: -0.02em; max-width: 34ch; }
+.bigidea mark {
+  background: linear-gradient(var(--marker), var(--marker)) 0 90% / 100% 58% no-repeat;
+  color: inherit; padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.fine { margin: 6px 0 0; color: var(--muted); font-size: 0.9rem; }
+.jump { display: flex; gap: 8px; overflow-x: auto; margin: 18px 0 2px; padding-bottom: 4px; }
+.jump button {
+  flex: none; padding: 6px 12px; font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+  color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 999px;
+}
+.jump button:hover { border-color: var(--ink); }
+.read h2 { scroll-margin-top: 130px; }
+
+.steps { counter-reset: st; }
+.steps li { counter-increment: st; position: relative; padding-left: 36px; }
+.steps li::before {
+  content: counter(st); position: absolute; left: 0; top: 0.3em; width: 24px; height: 24px;
+  display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--ink);
+  font: 700 0.8rem var(--display);
+}
+.steps li strong { font-family: var(--display); font-weight: 700; }
+
+.tip { margin: 0 0 16px; }
+.tip strong { display: block; font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.tip p { margin: 2px 0 0; }
+
+.tablewrap { overflow-x: auto; margin: 4px 0 8px; }
+.read table { width: 100%; border-collapse: collapse; font-family: var(--display); font-size: 0.98rem; }
+.read th, .read td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+.read th { font-weight: 800; }
+.read td:first-child { font-weight: 700; white-space: nowrap; }
+@media (max-width: 560px) {
+  .read thead { display: none; }
+  .read tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .read td { display: block; border: 0; padding: 2px 0; white-space: normal !important; }
+  .read td::before { content: attr(data-label) ": "; color: var(--muted); font-weight: 500; }
+}
+
+.takeaway { padding-left: 16px; border-left: 4px solid var(--marker); font-size: 1.2rem !important; }
+.read .bigidea { font-family: var(--display); font-weight: 800; font-size: clamp(1.3rem, 3.4vw, 1.8rem); line-height: 1.28; }
+.read .steps { list-style: none; padding-left: 0; }
+.read .steps li { margin-bottom: 12px; }
+.read .takeaway { font-family: var(--display); font-weight: 700; }
