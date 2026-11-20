@@ -1,2 +1,2 @@
-# Ai bookstorw
+# Ai bookstore
 bookstore 
